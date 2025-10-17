@@ -1,0 +1,20 @@
+{
+  "beta": 0.95,
+  "alpha": 0.1,
+  "gamma": 0.7,
+  "tau11": 1.0,
+  "tau10": 0.5,
+  "tau01": -0.3,
+  "tau00": -0.8,
+  "p11": 0.3,
+  "p10": 0.2,
+  "p01": 0.25,
+  "p00": 0.25,
+  "trust_min": 0.0,
+  "trust_max": 1.0,
+  "grid_size": 1000,
+  "tolerance": 1e-8,
+  "max_iterations": 10000,
+  "output_prefix": "sample_run",
+  "verbose": true
+}

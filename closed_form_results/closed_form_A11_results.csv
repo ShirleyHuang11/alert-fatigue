@@ -1,0 +1,2 @@
+beta,tau11,tau10,tau01,tau00,p11,p10,p01,p00,sigma_10,sigma_01,kappa,tau_10_sigma,tau_01_sigma,branch_name,description,C0,V_constant,formula,plot_path,solution_type,branch_type,is_constant,independent_of_t
+0.95,1.0,1.0,0.8,0.6,0.2,0.4,0.2,0.2,1,1,1.0,1.0,0.0,"(+1, +1)",Both conflict states choose Forward,0.6000000000000001,11.999999999999991,V(t) = (p¹¹τ¹¹ + p¹⁰τ¹⁰) / (1-β) = (0.600000) / (0.050000000000000044) = 12.000000,closed_form_results/closed_form_A11_solution.png,Closed-Form,"A11 (+1, +1)",True,True
