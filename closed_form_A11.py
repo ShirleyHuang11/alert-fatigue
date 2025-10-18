@@ -258,8 +258,15 @@ class ClosedFormA11:
         """
         branch_params = self.calculate_branch_parameters()
         
-        # Create the mathematical formula string
-        formula = f"V(t) = (p¹¹τ¹¹ + p¹⁰τ¹⁰) / (1-β) = ({self.C0:.6f}) / ({1-self.beta}) = {self.V_constant:.6f}"
+        # Create the mathematical formula string with full description
+        formula = (
+            f"Branch A (+1,+1): Both conflict states choose Forward. "
+            f"If V(·) is bounded and 0<β<1, the terminal term vanishes as n→∞. "
+            f"Thus, the value function is constant across t and equal to the infinite geometric sum: "
+            f"V(t) = (p¹¹τ¹¹ + p¹⁰τ¹⁰)/(1-β) = "
+            f"({self.p_values['11']:.4f}×{self.tau_values['11']:.4f} + {self.p_values['10']:.4f}×{self.tau_values['10']:.4f})/"
+            f"(1-{self.beta}) = {self.C0:.6f}/{1-self.beta} = {self.V_constant:.6f}, independent of t."
+        )
         
         results_data = {
             # All parameters

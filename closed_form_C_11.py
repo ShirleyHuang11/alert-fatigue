@@ -505,7 +505,34 @@ class ClosedFormC11:
         if self.is_degenerate:
             formula = f"V(t) = c₀/b for t<0, V(t) = c₀/b + (c₁/b)t for 0≤t≤1, V(t) = c₊/b for t>1"
         else:
-            formula = f"Complete Switch Logic: V(t) = V(0) for t<0; V(t) = T(σ^prev)/(1-β) + [V_C(t*) - T(σ^prev)/(1-β)]e^(λ(σ^prev)(t-t*)) for 0≤t≤t*; V(t) = c₀/(1-β) + (a_C c₁)/(1-β)²[1-e^(λ_C(t-1))] + (c₁/(1-β))t for t*≤t≤1; V(t) = V(1) for t>1. Switch at t*={switch_time:.3f}, Predecessor={predecessor}"
+            # Get predecessor parameters
+            if predecessor == "(+1, +1)":
+                T_prev = self.p_values['11'] * self.tau_values['11'] + self.p_values['10'] * self.tau_values['10']
+                lambda_prev = self.b / (self.beta * self.alpha)
+            else:  # (0, +1)
+                T_prev = self.p_values['11'] * self.tau_values['11'] + self.p_values['10'] * self.gamma * self.tau_values['10']
+                lambda_prev = self.b / (self.beta * self.alpha * (1 - self.p_values['10']))
+            
+            # Calculate V_C(t*)
+            V_C_tstar = (c0 / self.b + 
+                        (a_C * c1 / (self.b**2)) * (1 - np.exp(lambda_C * (switch_time - 1))) +
+                        (c1 / self.b) * switch_time)
+            
+            # Calculate V(0) and V(1)
+            V_0 = T_prev / self.b + (V_C_tstar - T_prev / self.b) * np.exp(-lambda_prev * switch_time)
+            V_1 = self.p_values['11'] * self.tau_values['11'] / self.b
+            
+            formula = (
+                f"Branch C (-1,+1): Piecewise closed-form solution with switch logic. "
+                f"V(t) = V(0)={V_0:.6f} for t<0; "
+                f"V(t) = T(σ^prev)/(1-β) + [V_C(t*) - T(σ^prev)/(1-β)]exp(λ(σ^prev)(t-t*)) for 0≤t≤t*; "
+                f"V(t) = c₀/(1-β) + (a_C c₁)/(1-β)²[1-exp(λ_C(t-1))] + (c₁/(1-β))t for t*≤t≤1; "
+                f"V(t) = V(1)={V_1:.6f} for t>1. "
+                f"Where: c₀=p¹¹τ¹¹+p¹⁰τ¹⁰={c0:.6f}, c₁=-p¹⁰τ¹⁰={c1:.6f}, "
+                f"a_C=βα(1-2p¹⁰)={a_C:.6f}, λ_C=(1-β)/(βα(1-2p¹⁰))={lambda_C:.6f}, "
+                f"T({predecessor})={T_prev:.6f}, λ({predecessor})={lambda_prev:.6f}, "
+                f"σ^prev={predecessor}, t*={switch_time:.6f}, V_C(t*)={V_C_tstar:.6f}."
+            )
         
         results_data = {
             # All parameters

@@ -637,6 +637,53 @@ class ClosedFormD11:
         
         return plot_path
     
+    def _build_formula_string(self) -> str:
+        """Build comprehensive mathematical formula string for Branch D."""
+        # Get parameters for sigma1
+        if self.sigma1 is not None:
+            T_sigma1, lambda_sigma1 = self._get_candidate_params(self.sigma1)
+        else:
+            T_sigma1, lambda_sigma1 = 0, 0
+        
+        # Calculate V at switch points
+        V_D_t1 = self.get_branch_D_value(np.array([self.t1_star]))[0] if self.t1_star else 0
+        
+        # Calculate boundary values
+        V_0 = self.get_value_function(np.array([0.0]))[0]
+        V_1 = self.get_value_function(np.array([1.0]))[0]
+        
+        if self.t2_star is not None:
+            # Case 2: Two switches
+            T_sigma2, lambda_sigma2 = self._get_candidate_params(self.sigma2)
+            V_sigma1_t2 = T_sigma1 / self.b + (V_D_t1 - T_sigma1 / self.b) * np.exp(lambda_sigma1 * (self.t2_star - self.t1_star))
+            
+            formula = (
+                f"Branch D (-1,-1): Case 2 (Two switches). "
+                f"V(t) = V(0)={V_0:.6f} for t<0; "
+                f"V(t) = T(σ₂)/(1-β) + [V^σ₁(t₂*) - T(σ₂)/(1-β)]exp(λ(σ₂)(t-t₂*)) for 0≤t≤t₂*; "
+                f"V(t) = T(σ₁)/(1-β) + [V^D(t₁*) - T(σ₁)/(1-β)]exp(λ(σ₁)(t-t₁*)) for t₂*≤t≤t₁*; "
+                f"V(t) = V^D(t) for t₁*≤t≤1; "
+                f"V(t) = V(1)={V_1:.6f} for t>1. "
+                f"Where: c₀=p¹¹τ¹¹+p¹⁰τ¹⁰={self.c0:.6f}, c₁=-p¹⁰τ¹⁰+p⁰¹τ⁰¹={self.c1:.6f}, "
+                f"a_D=βα[(p¹¹+p⁰⁰)-p¹⁰-p⁰¹]={self.a_D:.6f}, λ_D=(1-β)/(βα[(p¹¹+p⁰⁰)-p¹⁰-p⁰¹])={self.lambda_D:.6f}, "
+                f"σ₁={self.sigma1}, T(σ₁)={T_sigma1:.6f}, λ(σ₁)={lambda_sigma1:.6f}, t₁*={self.t1_star:.6f}, V^D(t₁*)={V_D_t1:.6f}, "
+                f"σ₂={self.sigma2}, T(σ₂)={T_sigma2:.6f}, λ(σ₂)={lambda_sigma2:.6f}, t₂*={self.t2_star:.6f}, V^σ₁(t₂*)={V_sigma1_t2:.6f}."
+            )
+        else:
+            # Case 1: One switch
+            formula = (
+                f"Branch D (-1,-1): Case 1 (One switch). "
+                f"V(t) = V(0)={V_0:.6f} for t<0; "
+                f"V(t) = T(σ₁)/(1-β) + [V^D(t₁*) - T(σ₁)/(1-β)]exp(λ(σ₁)(t-t₁*)) for 0≤t≤t₁*; "
+                f"V(t) = V^D(t) for t₁*≤t≤1; "
+                f"V(t) = V(1)={V_1:.6f} for t>1. "
+                f"Where: c₀=p¹¹τ¹¹+p¹⁰τ¹⁰={self.c0:.6f}, c₁=-p¹⁰τ¹⁰+p⁰¹τ⁰¹={self.c1:.6f}, "
+                f"a_D=βα[(p¹¹+p⁰⁰)-p¹⁰-p⁰¹]={self.a_D:.6f}, λ_D=(1-β)/(βα[(p¹¹+p⁰⁰)-p¹⁰-p⁰¹])={self.lambda_D:.6f}, "
+                f"σ₁={self.sigma1}, T(σ₁)={T_sigma1:.6f}, λ(σ₁)={lambda_sigma1:.6f}, t₁*={self.t1_star:.6f}, V^D(t₁*)={V_D_t1:.6f}."
+            )
+        
+        return formula
+    
     def create_results_dataframe(self, plot_path: str) -> pd.DataFrame:
         """Create comprehensive results DataFrame."""
         # Create trust grid
@@ -726,8 +773,8 @@ class ClosedFormD11:
             # Plot path
             'plot_path': plot_path,
             
-            # Formula
-            'formula': 'Branch D (-1,-1) with potential two switches - see documentation'
+            # Formula - build comprehensive mathematical description
+            'formula': self._build_formula_string()
         }
         
         return pd.DataFrame([results_data])

@@ -537,7 +537,35 @@ class ClosedFormB11:
             formula = f"V(t) = c₀/b for t<0, V(t) = c₀/b + (c₁/b)t for 0≤t≤1, V(t) = (c₀+c₁)/b for t>1"
         else:
             switch_time, predecessor = self.calculate_switch_time()
-            formula = f"Complete Switch Logic: V(t) = V(0) for t<0; V(t) = T(σ^prev)/(1-β) + [V_B(t*) - T(σ^prev)/(1-β)]e^(λ(σ^prev)(t-t*)) for 0≤t≤t*; V(t) = c₀/(1-β) + (a_B c₁)/(1-β)²[1-e^(λ_B(t-1))] + (c₁/(1-β))t for t*≤t≤1; V(t) = V(1) for t>1. Switch at t*={switch_time:.3f}, Predecessor={predecessor}"
+            
+            # Get predecessor parameters
+            if predecessor == "(+1, +1)":
+                T_prev = self.p_values['11'] * self.tau_values['11'] + self.p_values['10'] * self.tau_values['10']
+                lambda_prev = self.b / (self.beta * self.alpha * ((self.p_values['11'] + self.p_values['00']) + self.p_values['10'] + self.p_values['01']))
+            else:  # (+1, 0)
+                T_prev = self.p_values['11'] * self.tau_values['11'] + self.p_values['10'] * self.tau_values['10'] + self.p_values['01'] * (1 - self.gamma) * self.tau_values['01']
+                lambda_prev = self.b / (self.beta * self.alpha * ((self.p_values['11'] + self.p_values['00']) + self.p_values['10']))
+            
+            # Calculate V_B(t*)
+            V_B_tstar = (self.c0 / self.b + 
+                        (self.a * self.c1 / (self.b**2)) * (1 - np.exp(self.lambda_val * (switch_time - 1))) +
+                        (self.c1 / self.b) * switch_time)
+            
+            # Calculate V(0) and V(1)
+            V_0 = T_prev / self.b + (V_B_tstar - T_prev / self.b) * np.exp(-lambda_prev * switch_time)
+            V_1 = (self.c0 + self.c1) / self.b
+            
+            formula = (
+                f"Branch B (+1,-1): Piecewise closed-form solution with switch logic. "
+                f"V(t) = V(0)={V_0:.6f} for t<0; "
+                f"V(t) = T(σ^prev)/(1-β) + [V_B(t*) - T(σ^prev)/(1-β)]exp(λ(σ^prev)(t-t*)) for 0≤t≤t*; "
+                f"V(t) = c₀/(1-β) + (a_B c₁)/(1-β)²[1-exp(λ_B(t-1))] + (c₁/(1-β))t for t*≤t≤1; "
+                f"V(t) = V(1)={V_1:.6f} for t>1. "
+                f"Where: c₀=p¹¹τ¹¹+p¹⁰τ¹⁰={self.c0:.6f}, c₁=p⁰¹τ⁰¹={self.c1:.6f}, "
+                f"a_B=βα[(p¹¹+p⁰⁰)+p¹⁰-p⁰¹]={self.a:.6f}, λ_B=(1-β)/(βα[(p¹¹+p⁰⁰)+p¹⁰-p⁰¹])={self.lambda_val:.6f}, "
+                f"T({predecessor})={T_prev:.6f}, λ({predecessor})={lambda_prev:.6f}, "
+                f"σ^prev={predecessor}, t*={switch_time:.6f}, V_B(t*)={V_B_tstar:.6f}."
+            )
         
         results_data = {
             # All parameters
