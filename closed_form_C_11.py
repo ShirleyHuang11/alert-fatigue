@@ -158,11 +158,11 @@ class ClosedFormC11:
         t_F = bisection_root(g_F, 0.0, 1.0)
         t_C = bisection_root(g_C, 0.0, 1.0)
         
-        # Collect valid candidates
+        # Collect valid candidates (filter out switches too close to t=0)
         candidates = []
-        if not np.isnan(t_F) and 0 <= t_F <= 1:
+        if not np.isnan(t_F) and 0.01 <= t_F <= 1:
             candidates.append((t_F, "(+1, +1)"))
-        if not np.isnan(t_C) and 0 <= t_C <= 1:
+        if not np.isnan(t_C) and 0.01 <= t_C <= 1:
             candidates.append((t_C, "(0, +1)"))
         
         if not candidates:

@@ -222,11 +222,11 @@ class ClosedFormB11:
         t_F = bisection_root(f_F, 0.0, 1.0)
         t_C = bisection_root(f_C, 0.0, 1.0)
         
-        # Collect valid candidates
+        # Collect valid candidates (filter out switches too close to t=0)
         candidates = []
-        if not np.isnan(t_F) and 0 <= t_F <= 1:
+        if not np.isnan(t_F) and 0.01 <= t_F <= 1:
             candidates.append((t_F, "(+1, +1)"))
-        if not np.isnan(t_C) and 0 <= t_C <= 1:
+        if not np.isnan(t_C) and 0.01 <= t_C <= 1:
             candidates.append((t_C, "(+1, 0)"))
         
         if not candidates:
@@ -234,11 +234,14 @@ class ClosedFormB11:
             t_F_approx = 2 * K
             t_C_approx = (1 - self.gamma) + K
             
-            # Choose the maximum and corresponding branch
-            if t_F_approx > t_C_approx:
+            # Filter out switches at t < 0.01
+            if t_F_approx >= 0.01 and t_F_approx > t_C_approx:
                 return t_F_approx, "(+1, +1)"
-            else:
+            elif t_C_approx >= 0.01:
                 return t_C_approx, "(+1, 0)"
+            else:
+                # No valid switch, return 0
+                return 0.0, "(+1, +1)"
         
         # Choose the maximum switch time
         t_star = max(candidates, key=lambda x: x[0])[0]
