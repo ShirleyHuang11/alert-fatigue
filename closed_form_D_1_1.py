@@ -541,7 +541,7 @@ class ClosedFormD11:
         os.makedirs(save_dir, exist_ok=True)
         
         # Create trust grid
-        trust_grid = np.linspace(0, 1, 1000)
+        trust_grid = np.linspace(0, 1, 500)
         V_values = self.get_value_function(trust_grid)
         policy_10, policy_01 = self.get_policy(trust_grid)
         
@@ -687,7 +687,7 @@ class ClosedFormD11:
     def create_results_dataframe(self, plot_path: str) -> pd.DataFrame:
         """Create comprehensive results DataFrame."""
         # Create trust grid
-        trust_grid = np.linspace(0, 1, 1000)
+        trust_grid = np.linspace(0, 1, 500)
         V_values = self.get_value_function(trust_grid)
         policy_10, policy_01 = self.get_policy(trust_grid)
         
@@ -765,10 +765,10 @@ class ClosedFormD11:
             'V_1': V_1,
             
             # Arrays
-            'trust_grid': [trust_grid.tolist()],
-            'V_values': [V_values.tolist()],
-            'policy_10_branch': [policy_10_letters],
-            'policy_01_branch': [policy_01_letters],
+            'trust_grid': trust_grid.tolist(),
+            'V_values': V_values.tolist(),
+            'policy_10_branch': policy_10_letters,
+            'policy_01_branch': policy_01_letters,
             
             # Plot path
             'plot_path': plot_path,

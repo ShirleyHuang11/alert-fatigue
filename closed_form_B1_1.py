@@ -567,6 +567,14 @@ class ClosedFormB11:
                 f"σ^prev={predecessor}, t*={switch_time:.6f}, V_B(t*)={V_B_tstar:.6f}."
             )
         
+        # Generate trust grid, V(t) values, and policies
+        trust_grid = np.linspace(0, 1, 500)
+        # Compute V(t) for each trust level using the closed-form solution
+        V_values = np.array([self.get_value_function(t) for t in trust_grid])
+        # For Branch B (+1, -1): 10-branch Forward, 01-branch Backward
+        policy_10_branch = ['F'] * len(trust_grid)  # Always Forward
+        policy_01_branch = ['B'] * len(trust_grid)  # Always Backward
+        
         results_data = {
             # All parameters
             'beta': self.beta,
@@ -599,6 +607,12 @@ class ClosedFormB11:
             'switch_time': branch_params['switch_time'],
             'predecessor_branch': branch_params['predecessor_branch'],
             'is_degenerate': branch_params['is_degenerate'],
+            
+            # Trust grid, V(t) values, and policies
+            'trust_grid': trust_grid.tolist(),
+            'V_values': V_values.tolist(),  # Convert to list for CSV storage
+            'policy_10_branch': policy_10_branch,  # F=Forward
+            'policy_01_branch': policy_01_branch,  # B=Backward
             
             # Formula and metadata
             'formula': formula,

@@ -268,6 +268,14 @@ class ClosedFormA11:
             f"(1-{self.beta}) = {self.C0:.6f}/{1-self.beta} = {self.V_constant:.6f}, independent of t."
         )
         
+        # Generate trust grid, V(t) values, and policies
+        trust_grid = np.linspace(0, 1, 500)
+        # For Branch A, V(t) is constant for all t
+        V_values = np.full(len(trust_grid), self.V_constant)
+        # For Branch A (+1, +1), both branches always choose Forward
+        policy_10_branch = ['F'] * len(trust_grid)  # Always Forward
+        policy_01_branch = ['F'] * len(trust_grid)  # Always Forward
+        
         results_data = {
             # All parameters
             'beta': self.beta,
@@ -293,6 +301,12 @@ class ClosedFormA11:
             'C0': self.C0,
             'V_constant': self.V_constant,
             'formula': formula,
+            
+            # Trust grid, V(t) values, and policies
+            'trust_grid': trust_grid.tolist(),
+            'V_values': V_values.tolist(),  # Convert to list for CSV storage
+            'policy_10_branch': policy_10_branch,  # F=Forward
+            'policy_01_branch': policy_01_branch,  # F=Forward
             
             # File paths
             'plot_path': plot_path if plot_path else None,

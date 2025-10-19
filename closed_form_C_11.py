@@ -468,7 +468,7 @@ class ClosedFormC11:
         V_1 = self.p_values['11'] * self.tau_values['11'] / self.b
         
         # Create trust level grid and corresponding V values
-        trust_grid = np.linspace(-0.5, 1.5, 1000)
+        trust_grid = np.linspace(-0.5, 1.5, 500)
         V_values = np.array([self.get_value_function(t) for t in trust_grid])
         
         # Calculate optimal policies for each trust level
