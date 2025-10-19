@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-Sensitivity Analysis: How optimal policies vary with tau10 across trust levels.
+Sensitivity Analysis: How optimal policies vary with tau01 across trust levels.
 
 This script generates two sets of heatmaps:
 1. Based on numerical simulation (value iteration)
 2. Based on closed-form solutions (when available)
 
 Each set shows how the optimal policy changes as a function of trust level (x-axis) 
-and tau10 value (y-axis), with all other parameters fixed.
+and tau01 value (y-axis), with all other parameters fixed.
 
 Usage:
-    python plot_tau10_sensitivity.py --beta 0.9 --alpha 0.02 --gamma 0.9 \
-        --tau11 1.0 --tau01 0.8 --tau00 -1.0 \
+    python plot_tau01_sensitivity.py --beta 0.9 --alpha 0.02 --gamma 0.9 \
+        --tau11 1.0 --tau10 1.0 --tau00 -1.0 \
         --p11 0.2 --p10 0.4 --p01 0.2 --p00 0.2 \
-        --tau10-min -1.0 --tau10-max 2.0 --tau10-steps 20 \
-        --output-prefix sensitivity_results/tau10
+        --tau01-min -1.0 --tau01-max 2.0 --tau01-steps 20 \
+        --output-prefix sensitivity_results/tau01
 """
 
 import numpy as np
@@ -45,56 +45,56 @@ class Logger:
 
 def create_sensitivity_plots(
     beta, alpha, gamma,
-    tau11, tau01, tau00,
+    tau11, tau10, tau00,
     p11, p10, p01, p00,
-    tau10_min, tau10_max, tau10_steps,
+    tau01_min, tau01_max, tau01_steps,
     trust_grid_size=100,
-    output_prefix='tau10_sensitivity',
+    output_prefix='tau01_sensitivity',
     logger=None
 ):
     """
-    Create sensitivity analysis plots for tau10 using both simulation and closed-form.
+    Create sensitivity analysis plots for tau01 using both simulation and closed-form.
     
     Parameters:
     -----------
-    All Bellman parameters except tau10 which varies
-    tau10_min, tau10_max, tau10_steps: Range and resolution for tau10
+    All Bellman parameters except tau01 which varies
+    tau01_min, tau01_max, tau01_steps: Range and resolution for tau01
     trust_grid_size: Number of trust levels to evaluate
     output_prefix: Prefix for output files (will create _simulation.png and _closedform.png)
     logger: Logger instance for output (if None, prints to console only)
     """
     
-    # Create tau10 values to test
-    tau10_values = np.linspace(tau10_min, tau10_max, tau10_steps)
+    # Create tau01 values to test
+    tau01_values = np.linspace(tau01_min, tau01_max, tau01_steps)
     
     # Create trust grid (only [0, 1] range)
     trust_grid = np.linspace(0, 1, trust_grid_size)
     
     # Initialize arrays to store policies
     # Simulation policies
-    sim_policy_10_grid = np.zeros((tau10_steps, trust_grid_size))
-    sim_policy_01_grid = np.zeros((tau10_steps, trust_grid_size))
+    sim_policy_10_grid = np.zeros((tau01_steps, trust_grid_size))
+    sim_policy_01_grid = np.zeros((tau01_steps, trust_grid_size))
     
     # Closed-form policies
-    cf_policy_10_grid = np.zeros((tau10_steps, trust_grid_size))
-    cf_policy_01_grid = np.zeros((tau10_steps, trust_grid_size))
+    cf_policy_10_grid = np.zeros((tau01_steps, trust_grid_size))
+    cf_policy_01_grid = np.zeros((tau01_steps, trust_grid_size))
     
-    # Track which branch was selected for each tau10
+    # Track which branch was selected for each tau01
     selected_branches = []
     
     log = logger.log if logger else print
     
     log(f"Running sensitivity analysis...")
-    log(f"  tau10 range: [{tau10_min:.2f}, {tau10_max:.2f}] with {tau10_steps} steps")
+    log(f"  tau01 range: [{tau01_min:.2f}, {tau01_max:.2f}] with {tau01_steps} steps")
     log(f"  Trust levels: {trust_grid_size} points in [0, 1]")
     log(f"  Fixed parameters: β={beta}, α={alpha}, γ={gamma}")
-    log(f"  τ={{11:{tau11}, 01:{tau01}, 00:{tau00}}}")
+    log(f"  τ={{11:{tau11}, 10:{tau10}, 00:{tau00}}}")
     log(f"  p={{11:{p11}, 10:{p10}, 01:{p01}, 00:{p00}}}")
     log("")
     
-    # Run simulation and closed-form for each tau10 value
-    for i, tau10 in enumerate(tau10_values):
-        log(f"  Processing tau10 = {tau10:.3f} ({i+1}/{tau10_steps})...")
+    # Run simulation and closed-form for each tau01 value
+    for i, tau01 in enumerate(tau01_values):
+        log(f"  Processing tau01 = {tau01:.3f} ({i+1}/{tau01_steps})...")
         
         tau_values = {
             '11': tau11,
@@ -222,21 +222,21 @@ def create_sensitivity_plots(
     log(f"  Branch selection summary: {dict(pd.Series(selected_branches).value_counts())}")
     
     # Create two separate plots
-    create_plot(sim_policy_10_grid, sim_policy_01_grid, tau10_values, trust_grid,
-                tau10_min, tau10_max, beta, alpha, gamma, tau11, tau01, tau00,
+    create_plot(sim_policy_10_grid, sim_policy_01_grid, tau01_values, trust_grid,
+                tau01_min, tau01_max, beta, alpha, gamma, tau11, tau10, tau00,
                 p11, p10, p01, p00, f"{output_prefix}_simulation.png",
                 "Numerical Simulation", None, log)
     
-    create_plot(cf_policy_10_grid, cf_policy_01_grid, tau10_values, trust_grid,
-                tau10_min, tau10_max, beta, alpha, gamma, tau11, tau01, tau00,
+    create_plot(cf_policy_10_grid, cf_policy_01_grid, tau01_values, trust_grid,
+                tau01_min, tau01_max, beta, alpha, gamma, tau11, tau10, tau00,
                 p11, p10, p01, p00, f"{output_prefix}_closedform.png",
                 "Closed-Form Solution", selected_branches, log)
     
     return sim_policy_10_grid, sim_policy_01_grid, cf_policy_10_grid, cf_policy_01_grid
 
 
-def create_plot(policy_10_grid, policy_01_grid, tau10_values, trust_grid,
-                tau10_min, tau10_max, beta, alpha, gamma, tau11, tau01, tau00,
+def create_plot(policy_10_grid, policy_01_grid, tau01_values, trust_grid,
+                tau01_min, tau01_max, beta, alpha, gamma, tau11, tau10, tau00,
                 p11, p10, p01, p00, output_path, title_prefix, selected_branches=None, log_func=print):
     """Create a single sensitivity plot."""
     
@@ -255,11 +255,11 @@ def create_plot(policy_10_grid, policy_01_grid, tau10_values, trust_grid,
         cmap=cmap,
         norm=norm,
         origin='lower',
-        extent=[trust_grid[0], trust_grid[-1], tau10_min, tau10_max]
+        extent=[trust_grid[0], trust_grid[-1], tau01_min, tau01_max]
     )
     ax1.set_xlabel('Trust Level (t)', fontsize=12)
-    ax1.set_ylabel('τ¹⁰ Value', fontsize=12)
-    title1 = f'10-Branch Policy ({title_prefix}): How Optimal Policy Changes with τ¹⁰ and Trust Level'
+    ax1.set_ylabel('τ⁰¹ Value', fontsize=12)
+    title1 = f'10-Branch Policy ({title_prefix}): How Optimal Policy Changes with τ⁰¹ and Trust Level'
     ax1.set_title(title1, fontsize=14, fontweight='bold')
     ax1.grid(True, alpha=0.3, linestyle='--')
     
@@ -275,11 +275,11 @@ def create_plot(policy_10_grid, policy_01_grid, tau10_values, trust_grid,
         cmap=cmap,
         norm=norm,
         origin='lower',
-        extent=[trust_grid[0], trust_grid[-1], tau10_min, tau10_max]
+        extent=[trust_grid[0], trust_grid[-1], tau01_min, tau01_max]
     )
     ax2.set_xlabel('Trust Level (t)', fontsize=12)
-    ax2.set_ylabel('τ¹⁰ Value', fontsize=12)
-    title2 = f'01-Branch Policy ({title_prefix}): How Optimal Policy Changes with τ¹⁰ and Trust Level'
+    ax2.set_ylabel('τ⁰¹ Value', fontsize=12)
+    title2 = f'01-Branch Policy ({title_prefix}): How Optimal Policy Changes with τ⁰¹ and Trust Level'
     ax2.set_title(title2, fontsize=14, fontweight='bold')
     ax2.grid(True, alpha=0.3, linestyle='--')
     
@@ -291,7 +291,7 @@ def create_plot(policy_10_grid, policy_01_grid, tau10_values, trust_grid,
     # Add parameter info
     param_text = (
         f'Fixed Parameters: β={beta}, α={alpha}, γ={gamma}, '
-        f'τ¹¹={tau11}, τ⁰¹={tau01}, τ⁰⁰={tau00}, '
+        f'τ¹¹={tau11}, τ¹⁰={tau10}, τ⁰⁰={tau00}, '
         f'p¹¹={p11}, p¹⁰={p10}, p⁰¹={p01}, p⁰⁰={p00}'
     )
     
@@ -312,7 +312,7 @@ def create_plot(policy_10_grid, policy_01_grid, tau10_values, trust_grid,
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Sensitivity analysis: How optimal policies vary with tau10'
+        description='Sensitivity analysis: How optimal policies vary with tau01'
     )
     
     # Fixed parameters
@@ -323,11 +323,11 @@ def main():
     parser.add_argument('--gamma', type=float, required=True,
                        help='Human decision probability')
     
-    # Fixed tau values (except tau10)
+    # Fixed tau values (except tau01)
     parser.add_argument('--tau11', type=float, required=True,
                        help='Treatment effect for type (1,1)')
-    parser.add_argument('--tau01', type=float, required=True,
-                       help='Treatment effect for type (0,1)')
+    parser.add_argument('--tau10', type=float, required=True,
+                       help='Treatment effect for type (1,0)')
     parser.add_argument('--tau00', type=float, required=True,
                        help='Treatment effect for type (0,0)')
     
@@ -341,20 +341,20 @@ def main():
     parser.add_argument('--p00', type=float, required=True,
                        help='Probability of type (0,0)')
     
-    # tau10 range
-    parser.add_argument('--tau10-min', type=float, default=-1.0,
-                       help='Minimum tau10 value (default: -1.0)')
-    parser.add_argument('--tau10-max', type=float, default=2.0,
-                       help='Maximum tau10 value (default: 2.0)')
-    parser.add_argument('--tau10-steps', type=int, default=20,
-                       help='Number of tau10 values to test (default: 20)')
+    # tau01 range
+    parser.add_argument('--tau01-min', type=float, default=-1.0,
+                       help='Minimum tau01 value (default: -1.0)')
+    parser.add_argument('--tau01-max', type=float, default=2.0,
+                       help='Maximum tau01 value (default: 2.0)')
+    parser.add_argument('--tau01-steps', type=int, default=20,
+                       help='Number of tau01 values to test (default: 20)')
     
     # Grid parameters
     parser.add_argument('--trust-grid-size', type=int, default=100,
                        help='Number of trust levels to evaluate (default: 100)')
     
     # Output
-    parser.add_argument('--output-prefix', type=str, default='sensitivity_results/tau10',
+    parser.add_argument('--output-prefix', type=str, default='sensitivity_results/tau01',
                        help='Output file prefix (will create _simulation.png and _closedform.png)')
     
     args = parser.parse_args()
@@ -388,15 +388,15 @@ def main():
             alpha=args.alpha,
             gamma=args.gamma,
             tau11=args.tau11,
-            tau01=args.tau01,
+            tau10=args.tau10,
             tau00=args.tau00,
             p11=args.p11,
             p10=args.p10,
             p01=args.p01,
             p00=args.p00,
-            tau10_min=args.tau10_min,
-            tau10_max=args.tau10_max,
-            tau10_steps=args.tau10_steps,
+            tau01_min=args.tau01_min,
+            tau01_max=args.tau01_max,
+            tau01_steps=args.tau01_steps,
             trust_grid_size=args.trust_grid_size,
             output_prefix=args.output_prefix,
             logger=logger

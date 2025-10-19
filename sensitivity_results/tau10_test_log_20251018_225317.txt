@@ -1,0 +1,26 @@
+Sensitivity Analysis Log
+Started at: 2025-10-18 22:53:17
+Log file: sensitivity_results/tau10_test_log_20251018_225317.txt
+======================================================================
+
+Running sensitivity analysis...
+  tau10 range: [-1.00, 1.00] with 5 steps
+  Trust levels: 50 points in [0, 1]
+  Fixed parameters: β=0.9, α=0.02, γ=0.9
+  τ={11:1.0, 01:0.8, 00:-1.0}
+  p={11:0.2, 10:0.4, 01:0.2, 00:0.2}
+
+  Processing tau10 = -1.000 (1/5)...
+  Processing tau10 = -0.500 (2/5)...
+  Processing tau10 = 0.000 (3/5)...
+  Processing tau10 = 0.500 (4/5)...
+  Processing tau10 = 1.000 (5/5)...
+
+  ✓ Completed all simulations and closed-form computations!
+  Branch selection summary: {'B': 3, 'D': 2}
+  ✓ Plot saved to: sensitivity_results/tau10_test_simulation.png
+  ✓ Plot saved to: sensitivity_results/tau10_test_closedform.png
+
+======================================================================
+Completed at: 2025-10-18 22:53:26
+All results saved with prefix: sensitivity_results/tau10_test
