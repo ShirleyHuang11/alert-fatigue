@@ -452,12 +452,6 @@ class ClosedFormB11:
         ax3.grid(True, alpha=0.3)
         ax3.legend(loc='upper right')
         
-        # Add policy interpretation text
-        policy_text = f'Policy Legend:\n• 10-Branch: AI decision when Human=1, AI=0\n• 01-Branch: AI decision when Human=0, AI=1\n• Switch at t* = {switch_time:.3f} changes 01-branch behavior\n• Boundary policies: V(0) for t<0, V(1) for t>1'
-        ax3.text(0.02, 0.98, policy_text, transform=ax3.transAxes, 
-                verticalalignment='top', bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8),
-                fontsize=8)
-        
         # Add parameter information to top left plot
         param_text = f'Parameters:\nβ = {self.beta}, α = {self.alpha}, γ = {self.gamma}\nSwitch: t* = {switch_time:.3f}\nPredecessor: {predecessor}'
         ax1.text(0.02, 0.98, param_text, transform=ax1.transAxes, 
